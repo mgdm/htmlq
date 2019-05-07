@@ -1,0 +1,9 @@
+[package]
+name = "htmlq"
+version = "0.1.0"
+authors = ["Michael Maclean <michael.maclean@bbc.co.uk>"]
+edition = "2018"
+
+[dependencies]
+kuchiki = "*"
+clap = "*"
