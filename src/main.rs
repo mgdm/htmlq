@@ -1,11 +1,14 @@
 extern crate html5ever;
 extern crate kuchiki;
 
+mod pretty_print;
+
 use clap::{App, Arg, ArgMatches};
-use kuchiki::NodeRef;
 use kuchiki::traits::*;
+use kuchiki::NodeRef;
 use std::fs::File;
 use std::io;
+use std::str;
 
 #[derive(Debug, Clone)]
 struct Config {
@@ -13,6 +16,8 @@ struct Config {
     output_path: String,
     selector: String,
     text_only: bool,
+    ignore_whitespace: bool,
+    pretty_print: bool,
     attributes: Option<Vec<String>>,
 }
 
@@ -32,8 +37,10 @@ impl Config {
             input_path: String::from(matches.value_of("filename").unwrap_or("-")),
             output_path: String::from(matches.value_of("output").unwrap_or("-")),
             text_only: matches.is_present("text_only"),
-            attributes: attributes,
-            selector: selector
+            ignore_whitespace: matches.is_present("ignore_whitespace"),
+            pretty_print: matches.is_present("pretty_print"),
+            attributes,
+            selector,
         })
     }
 }
@@ -48,6 +55,23 @@ fn select_attributes(node: &NodeRef, attributes: &Vec<String>, output: &mut io::
             }
         }
     }
+}
+
+fn serialize_text(node: &NodeRef, ignore_whitespace: bool) -> String {
+    let mut result = String::new();
+    for text_node in node.inclusive_descendants().text_nodes() {
+        if ignore_whitespace && text_node.borrow().trim().len() == 0 {
+            continue;
+        }
+
+        result.push_str(&text_node.borrow());
+
+        if ignore_whitespace {
+            result.push_str("\n");
+        }
+    }
+
+    result
 }
 
 fn main() {
@@ -72,10 +96,22 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
+            Arg::with_name("pretty_print")
+                .short("p")
+                .long("pretty")
+                .help("Pretty-print the serialised output"),
+        )
+        .arg(
             Arg::with_name("text_only")
                 .short("t")
                 .long("text")
                 .help("Output only the contents of text nodes inside selected elements"),
+        )
+        .arg(
+            Arg::with_name("ignore_whitespace")
+                .short("w")
+                .long("ignore-whitespace")
+                .help("When printing text nodes, ignore those that consist entirely of whitespace"),
         )
         .arg(
             Arg::with_name("attribute")
@@ -117,11 +153,20 @@ fn main() {
             select_attributes(node, attributes, &mut output);
         } else {
             if config.text_only {
-                output
-                    .write_all(format!("{}\n", node.text_contents()).as_ref())
-                    .unwrap();
+                let content = serialize_text(node, config.ignore_whitespace);
+                output.write_all(format!("{}\n", content).as_ref()).unwrap();
             } else {
-                node.serialize(&mut output).unwrap();
+                if config.pretty_print {
+                    let content = pretty_print::pretty_print(node);
+                    output.write_all(content.as_ref()).unwrap();
+                    return;
+                }
+
+                let mut content: Vec<u8> = Vec::new();
+                node.serialize(&mut content).unwrap();
+                output
+                    .write_all(format!("{}\n", str::from_utf8(&content).unwrap()).as_ref())
+                    .unwrap();
             }
         }
     }
