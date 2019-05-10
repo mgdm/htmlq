@@ -32,14 +32,14 @@ fn main() {
             Arg::with_name("text_only")
                 .short("t")
                 .long("text")
-                .help("Output the contents of text elements"),
+                .help("Output only the contents of text nodes inside selected elements"),
         )
         .arg(
-            Arg::with_name("attributes")
+            Arg::with_name("attribute")
                 .short("a")
                 .long("attribute")
                 .takes_value(true)
-                .help("Attributes to return from selected elements"),
+                .help("Only return this attribute (if present) from selected elements"),
         )
         .arg(
             Arg::with_name("selector")
@@ -52,7 +52,7 @@ fn main() {
     let input_path = matches.value_of("filename").unwrap_or("-");
     let output_path = matches.value_of("filename").unwrap_or("-");
     let text_only = matches.is_present("text_only");
-    let attributes: Option<Vec<&str>> = match matches.values_of("attributes") {
+    let attributes: Option<Vec<&str>> = match matches.values_of("attribute") {
         Some(values) => Some(values.collect()),
         None => None,
     };
