@@ -2,6 +2,7 @@ extern crate html5ever;
 extern crate kuchiki;
 
 use clap::{App, Arg, ArgMatches};
+use kuchiki::NodeRef;
 use kuchiki::traits::*;
 use std::fs::File;
 use std::io;
@@ -34,6 +35,18 @@ impl Config {
             attributes: attributes,
             selector: selector
         })
+    }
+}
+
+fn select_attributes(node: &NodeRef, attributes: &Vec<String>, output: &mut io::Write) {
+    if let Some(as_element) = node.as_element() {
+        for attr in attributes {
+            if let Ok(elem_atts) = as_element.attributes.try_borrow() {
+                if let Some(val) = elem_atts.get(attr.as_str()) {
+                    output.write_all(format!("{}\n", val).as_ref()).unwrap();
+                }
+            }
+        }
     }
 }
 
@@ -98,25 +111,17 @@ fn main() {
         .unwrap();
 
     for css_match in document.select(&config.selector).unwrap() {
-        let as_node = css_match.as_node();
+        let node = css_match.as_node();
 
-        if let Some(attrs) = &config.attributes {
-            if let Some(as_element) = as_node.as_element() {
-                for attr in attrs {
-                    if let Ok(elem_atts) = as_element.attributes.try_borrow() {
-                        if let Some(val) = elem_atts.get(attr.as_str()) {
-                            output.write_all(format!("{}\n", val).as_ref()).unwrap();
-                        }
-                    }
-                }
-            }
+        if let Some(attributes) = &config.attributes {
+            select_attributes(node, attributes, &mut output);
         } else {
             if config.text_only {
                 output
-                    .write_all(format!("{}\n", as_node.text_contents()).as_ref())
+                    .write_all(format!("{}\n", node.text_contents()).as_ref())
                     .unwrap();
             } else {
-                as_node.serialize(&mut output).unwrap();
+                node.serialize(&mut output).unwrap();
             }
         }
     }
