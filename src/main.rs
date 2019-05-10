@@ -1,11 +1,41 @@
 extern crate html5ever;
 extern crate kuchiki;
 
-use clap::{App, Arg};
+use clap::{App, Arg, ArgMatches};
 use kuchiki::traits::*;
 use std::fs::File;
 use std::io;
 
+#[derive(Debug, Clone)]
+struct Config {
+    input_path: String,
+    output_path: String,
+    selector: String,
+    text_only: bool,
+    attributes: Option<Vec<String>>,
+}
+
+impl Config {
+    fn from_args(matches: ArgMatches) -> Option<Config> {
+        let attributes: Option<Vec<String>> = match matches.values_of("attribute") {
+            Some(values) => Some(values.map(|s| String::from(s)).collect()),
+            None => None,
+        };
+
+        let selector: String = match matches.values_of("selector") {
+            Some(values) => values.collect::<Vec<&str>>().join(" "),
+            None => String::from(""),
+        };
+
+        Some(Config {
+            input_path: String::from(matches.value_of("filename").unwrap_or("-")),
+            output_path: String::from(matches.value_of("output").unwrap_or("-")),
+            text_only: matches.is_present("text_only"),
+            attributes: attributes,
+            selector: selector
+        })
+    }
+}
 
 fn main() {
     let matches = App::new("htmlq")
@@ -49,26 +79,15 @@ fn main() {
         )
         .get_matches();
 
-    let input_path = matches.value_of("filename").unwrap_or("-");
-    let output_path = matches.value_of("output").unwrap_or("-");
-    let text_only = matches.is_present("text_only");
-    let attributes: Option<Vec<&str>> = match matches.values_of("attribute") {
-        Some(values) => Some(values.collect()),
-        None => None,
-    };
+    let config = Config::from_args(matches).unwrap();
 
-    let selector: String = match matches.values_of("selector") {
-        Some(values) => values.collect::<Vec<&str>>().join(" "),
-        None => String::from(""),
-    };
-
-    let mut input: Box<io::Read> = match input_path.as_ref() {
+    let mut input: Box<io::Read> = match config.input_path.as_ref() {
         "-" => Box::new(std::io::stdin()),
         f => Box::new(File::open(f).unwrap()),
     };
 
     let stdout = std::io::stdout();
-    let mut output: Box<io::Write> = match output_path.as_ref() {
+    let mut output: Box<io::Write> = match config.output_path.as_ref() {
         "-" => Box::new(stdout.lock()),
         f => Box::new(File::create(f).unwrap()),
     };
@@ -78,21 +97,21 @@ fn main() {
         .read_from(&mut input)
         .unwrap();
 
-    for css_match in document.select(&selector).unwrap() {
+    for css_match in document.select(&config.selector).unwrap() {
         let as_node = css_match.as_node();
 
-        if let Some(attrs) = &attributes {
+        if let Some(attrs) = &config.attributes {
             if let Some(as_element) = as_node.as_element() {
                 for attr in attrs {
                     if let Ok(elem_atts) = as_element.attributes.try_borrow() {
-                        if let Some(val) = elem_atts.get(*attr) {
+                        if let Some(val) = elem_atts.get(attr.as_str()) {
                             output.write_all(format!("{}\n", val).as_ref()).unwrap();
                         }
                     }
                 }
             }
         } else {
-            if text_only {
+            if config.text_only {
                 output
                     .write_all(format!("{}\n", as_node.text_contents()).as_ref())
                     .unwrap();
