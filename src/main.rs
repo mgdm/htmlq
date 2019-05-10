@@ -50,7 +50,7 @@ fn main() {
         .get_matches();
 
     let input_path = matches.value_of("filename").unwrap_or("-");
-    let output_path = matches.value_of("filename").unwrap_or("-");
+    let output_path = matches.value_of("output").unwrap_or("-");
     let text_only = matches.is_present("text_only");
     let attributes: Option<Vec<&str>> = match matches.values_of("attribute") {
         Some(values) => Some(values.collect()),
