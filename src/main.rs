@@ -1,6 +1,8 @@
 extern crate html5ever;
 extern crate kuchiki;
 
+mod pretty_print;
+
 use clap::{App, Arg, ArgMatches};
 use kuchiki::traits::*;
 use kuchiki::NodeRef;
@@ -15,6 +17,7 @@ struct Config {
     selector: String,
     text_only: bool,
     ignore_whitespace: bool,
+    pretty_print: bool,
     attributes: Option<Vec<String>>,
 }
 
@@ -35,6 +38,7 @@ impl Config {
             output_path: String::from(matches.value_of("output").unwrap_or("-")),
             text_only: matches.is_present("text_only"),
             ignore_whitespace: matches.is_present("ignore_whitespace"),
+            pretty_print: matches.is_present("pretty_print"),
             attributes,
             selector,
         })
@@ -92,6 +96,12 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
+            Arg::with_name("pretty_print")
+                .short("p")
+                .long("pretty")
+                .help("Pretty-print the serialised output"),
+        )
+        .arg(
             Arg::with_name("text_only")
                 .short("t")
                 .long("text")
@@ -146,6 +156,12 @@ fn main() {
                 let content = serialize_text(node, config.ignore_whitespace);
                 output.write_all(format!("{}\n", content).as_ref()).unwrap();
             } else {
+                if config.pretty_print {
+                    let content = pretty_print::pretty_print(node);
+                    output.write_all(content.as_ref()).unwrap();
+                    return;
+                }
+
                 let mut content: Vec<u8> = Vec::new();
                 node.serialize(&mut content).unwrap();
                 output
