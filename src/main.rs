@@ -24,7 +24,7 @@ struct Config {
 impl Config {
     fn from_args(matches: ArgMatches) -> Option<Config> {
         let attributes: Option<Vec<String>> = match matches.values_of("attribute") {
-            Some(values) => Some(values.map(|s| String::from(s)).collect()),
+            Some(values) => Some(values.map(String::from).collect()),
             None => None,
         };
 
@@ -45,7 +45,7 @@ impl Config {
     }
 }
 
-fn select_attributes(node: &NodeRef, attributes: &Vec<String>, output: &mut io::Write) {
+fn select_attributes(node: &NodeRef, attributes: &[String], output: &mut io::Write) {
     if let Some(as_element) = node.as_element() {
         for attr in attributes {
             if let Ok(elem_atts) = as_element.attributes.try_borrow() {
@@ -60,7 +60,7 @@ fn select_attributes(node: &NodeRef, attributes: &Vec<String>, output: &mut io::
 fn serialize_text(node: &NodeRef, ignore_whitespace: bool) -> String {
     let mut result = String::new();
     for text_node in node.inclusive_descendants().text_nodes() {
-        if ignore_whitespace && text_node.borrow().trim().len() == 0 {
+        if ignore_whitespace && text_node.borrow().trim().is_empty() {
             continue;
         }
 
@@ -151,23 +151,25 @@ fn main() {
 
         if let Some(attributes) = &config.attributes {
             select_attributes(node, attributes, &mut output);
-        } else {
-            if config.text_only {
-                let content = serialize_text(node, config.ignore_whitespace);
-                output.write_all(format!("{}\n", content).as_ref()).unwrap();
-            } else {
-                if config.pretty_print {
-                    let content = pretty_print::pretty_print(node);
-                    output.write_all(content.as_ref()).unwrap();
-                    return;
-                }
-
-                let mut content: Vec<u8> = Vec::new();
-                node.serialize(&mut content).unwrap();
-                output
-                    .write_all(format!("{}\n", str::from_utf8(&content).unwrap()).as_ref())
-                    .unwrap();
-            }
+            continue;
         }
+
+        if config.text_only {
+            let content = serialize_text(node, config.ignore_whitespace);
+            output.write_all(format!("{}\n", content).as_ref()).unwrap();
+            continue;
+        }
+
+        if config.pretty_print {
+            let content = pretty_print::pretty_print(node);
+            output.write_all(content.as_ref()).unwrap();
+            continue;
+        }
+
+        let mut content: Vec<u8> = Vec::new();
+        node.serialize(&mut content).unwrap();
+        output
+            .write_all(format!("{}\n", str::from_utf8(&content).unwrap()).as_ref())
+            .unwrap();
     }
 }

@@ -11,11 +11,11 @@ use std::io;
 use std::io::Write;
 use std::str;
 
-const INLINE_ELEMENTS: &'static [&'static str] = &[
-    "a", "abbr", "acronym", "audio", "b", "bdi", "bdo", "big", "button", "canvas", "cite",
-    "code", "data", "datalist", "del", "dfn", "em", "embed", "i", "iframe", "img", "input", "ins",
-    "kbd", "label", "map", "mark", "meter", "noscript", "object", "output", "picture", "progress",
-    "q", "ruby", "s", "samp", "script", "select", "slot", "small", "span", "strong", "sub", "sup",
+const INLINE_ELEMENTS: &[&str] = &[
+    "a", "abbr", "acronym", "audio", "b", "bdi", "bdo", "big", "button", "canvas", "cite", "code",
+    "data", "datalist", "del", "dfn", "em", "embed", "i", "iframe", "img", "input", "ins", "kbd",
+    "label", "map", "mark", "meter", "noscript", "object", "output", "picture", "progress", "q",
+    "ruby", "s", "samp", "script", "select", "slot", "small", "span", "strong", "sub", "sup",
     "svg", "template", "textarea", "time", "u", "tt", "var", "video", "wbr",
 ];
 
@@ -64,7 +64,7 @@ impl<W: Write> Serializer for PrettyPrint<W> {
     }
 
     fn write_text(&mut self, text: &str) -> io::Result<()> {
-        if text.trim().len() == 0 {
+        if text.trim().is_empty() {
             Ok(())
         } else {
             if self.previous_was_block {
