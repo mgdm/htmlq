@@ -6,6 +6,7 @@ mod pretty_print;
 use clap::{App, Arg, ArgMatches};
 use kuchiki::traits::*;
 use kuchiki::NodeRef;
+use std::error::Error;
 use std::fs::File;
 use std::io;
 use std::str;
@@ -30,7 +31,7 @@ impl Config {
 
         let selector: String = match matches.values_of("selector") {
             Some(values) => values.collect::<Vec<&str>>().join(" "),
-            None => String::from(""),
+            None => String::from("*"),
         };
 
         Some(Config {
@@ -45,7 +46,21 @@ impl Config {
     }
 }
 
-fn select_attributes(node: &NodeRef, attributes: &[String], output: &mut io::Write) {
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            input_path: "-".to_string(),
+            output_path: "-".to_string(),
+            selector: "*".to_string(),
+            ignore_whitespace: true,
+            pretty_print: true,
+            text_only: false,
+            attributes: Some(vec![]),
+        }
+    }
+}
+
+fn select_attributes(node: &NodeRef, attributes: &[String], output: &mut dyn io::Write) {
     if let Some(as_element) = node.as_element() {
         for attr in attributes {
             if let Ok(elem_atts) = as_element.attributes.try_borrow() {
@@ -74,8 +89,8 @@ fn serialize_text(node: &NodeRef, ignore_whitespace: bool) -> String {
     result
 }
 
-fn main() {
-    let matches = App::new("htmlq")
+fn get_config<'a, 'b>() -> App<'a, 'b> {
+    App::new("htmlq")
         .version("0.0.1")
         .author("Michael Maclean <michael@mgdm.net>")
         .about("Runs CSS selectors on HTML")
@@ -123,30 +138,32 @@ fn main() {
         .arg(
             Arg::with_name("selector")
                 .multiple(true)
-                .required(true)
                 .help("The CSS expression to select"),
         )
-        .get_matches();
+}
 
-    let config = Config::from_args(matches).unwrap();
+fn main() -> Result<(), Box<dyn Error>> {
+    let config = get_config();
+    let matches = config.get_matches();
+    let config = Config::from_args(matches).unwrap_or_default();
 
-    let mut input: Box<io::Read> = match config.input_path.as_ref() {
+    let mut input: Box<dyn io::Read> = match config.input_path.as_ref() {
         "-" => Box::new(std::io::stdin()),
         f => Box::new(File::open(f).unwrap()),
     };
 
     let stdout = std::io::stdout();
-    let mut output: Box<io::Write> = match config.output_path.as_ref() {
+    let mut output: Box<dyn io::Write> = match config.output_path.as_ref() {
         "-" => Box::new(stdout.lock()),
         f => Box::new(File::create(f).unwrap()),
     };
 
-    let document = kuchiki::parse_html()
-        .from_utf8()
-        .read_from(&mut input)
-        .unwrap();
+    let document = kuchiki::parse_html().from_utf8().read_from(&mut input)?;
 
-    for css_match in document.select(&config.selector).unwrap() {
+    for css_match in document
+        .select(&config.selector)
+        .expect("Failed to parse CSS selector")
+    {
         let node = css_match.as_node();
 
         if let Some(attributes) = &config.attributes {
@@ -156,20 +173,20 @@ fn main() {
 
         if config.text_only {
             let content = serialize_text(node, config.ignore_whitespace);
-            output.write_all(format!("{}\n", content).as_ref()).unwrap();
+            output.write_all(format!("{}\n", content).as_ref())?;
             continue;
         }
 
         if config.pretty_print {
             let content = pretty_print::pretty_print(node);
-            output.write_all(content.as_ref()).unwrap();
+            output.write_all(content.as_ref())?;
             continue;
         }
 
         let mut content: Vec<u8> = Vec::new();
-        node.serialize(&mut content).unwrap();
-        output
-            .write_all(format!("{}\n", str::from_utf8(&content).unwrap()).as_ref())
-            .unwrap();
+        node.serialize(&mut content)?;
+        output.write_all(format!("{}\n", str::from_utf8(&content)?).as_ref())?;
     }
+
+    Ok(())
 }
