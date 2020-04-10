@@ -31,7 +31,7 @@ impl Config {
 
         let selector: String = match matches.values_of("selector") {
             Some(values) => values.collect::<Vec<&str>>().join(" "),
-            None => String::from("*"),
+            None => String::from("html"),
         };
 
         Some(Config {
@@ -51,7 +51,7 @@ impl Default for Config {
         Self {
             input_path: "-".to_string(),
             output_path: "-".to_string(),
-            selector: "*".to_string(),
+            selector: "html".to_string(),
             ignore_whitespace: true,
             pretty_print: true,
             text_only: false,
@@ -137,6 +137,7 @@ fn get_config<'a, 'b>() -> App<'a, 'b> {
         )
         .arg(
             Arg::with_name("selector")
+                .default_value("html")
                 .multiple(true)
                 .help("The CSS expression to select"),
         )
