@@ -1,0 +1,119 @@
+name: Build binary
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: create a github release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: htmlq ${{ github.ref }}
+          draft: true
+          prerelease: false
+
+  linux:
+    name: linux gnulibc build
+    runs-on: ubuntu-latest
+    needs: [release]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      - run: cargo build --release
+      - run: tar cfz htmlq_x64_linux.tar.gz -C target/release htmlq
+      - name: upload x64 linux gnu release
+        id: release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{needs.release.outputs.upload_url}}
+          asset_path: ./htmlq_x64_linux.tar.gz
+          asset_name: htmlq_x64_linux.tar.gz
+          asset_content_type: application/gzip
+
+  darwin:
+    name: darwin
+    runs-on: macos-latest
+    needs: [release]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      - run: cargo build --release
+      - run: tar cfz htmlq_x64_darwin.tar.gz -C target/release htmlq
+      - name: upload darwin release
+        id: release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{needs.release.outputs.upload_url}}
+          asset_path: ./htmlq_x64_darwin.tar.gz
+          asset_name: htmlq_x64_darwin.tar.gz
+          asset_content_type: application/gzip
+
+  windows:
+    name: windows
+    runs-on: windows-latest
+    needs: [release]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      - run: cargo build --release
+      - name: tar it up
+        shell: bash
+        run: |
+          tar cfz htmlq_x64_win32.tar.gz -C target/release htmlq
+      - name: upload windows release
+        id: release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{needs.release.outputs.upload_url}}
+          asset_path: ./htmlq_x64_win32.tar.gz
+          asset_name: htmlq_x64_win32.tar.gz
+          asset_content_type: application/gzip
