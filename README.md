@@ -4,9 +4,7 @@ Like jq, but for HTML. Uses CSS selectors to extract bits content from HTML file
 ## Installation
 
 ```
-git clone https://github.com/mgdm/htmlq.git
-cd htmlq
-cargo install --path .
+cargo install htmlq
 ```
 
 ## Usage
