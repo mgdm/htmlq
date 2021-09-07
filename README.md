@@ -34,7 +34,7 @@ $
 ### Using with cURL to find part of a page by ID
 
 ```bash
-$ curl -s https://www.rust-lang.org/ | htmlq '#get-help'
+$ curl --silent https://www.rust-lang.org/ | htmlq '#get-help'
 <div class="four columns mt3 mt0-l" id="get-help">
         <h4>Get help!</h4>
         <ul>
@@ -57,7 +57,7 @@ $ curl -s https://www.rust-lang.org/ | htmlq '#get-help'
 ### Find all the links in a page
 
 ```bash
-$ curl -s https://www.rust-lang.org/ | htmlq -a href a
+$ curl --silent https://www.rust-lang.org/ | htmlq --attribute href a
 /
 /tools/install
 /learn
@@ -75,7 +75,7 @@ $
 ### Get the text content of a post
 
 ```
-$ curl -s https://nixos.org/nixos/about.html | htmlq  -t .main
+$ curl --silent https://nixos.org/nixos/about.html | htmlq  --text .main
 
           About NixOS
 
@@ -96,7 +96,7 @@ to change that.  NixOS has many innovative features:
 (This is a bit of a work in progress)
 
 ```
-$ curl -s https://mgdm.net | htmlq -p '#posts'
+$ curl --silent https://mgdm.net | htmlq --pretty '#posts'
 <section id="posts">
   <h2>I write about...
   </h2>
