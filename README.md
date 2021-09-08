@@ -3,13 +3,13 @@ Like jq, but for HTML. Uses CSS selectors to extract bits of content from HTML f
 
 ## Installation
 
-```
+```sh
 cargo install htmlq
 ```
 
 ## Usage
 
-```
+```console
 $ htmlq -h
 htmlq 0.2.0
 Runs CSS selectors on HTML
@@ -38,7 +38,7 @@ $
 
 ### Using with cURL to find part of a page by ID
 
-```bash
+```console
 $ curl --silent https://www.rust-lang.org/ | htmlq '#get-help'
 <div class="four columns mt3 mt0-l" id="get-help">
         <h4>Get help!</h4>
@@ -61,7 +61,7 @@ $ curl --silent https://www.rust-lang.org/ | htmlq '#get-help'
 
 ### Find all the links in a page
 
-```bash
+```console
 $ curl --silent https://www.rust-lang.org/ | htmlq --attribute href a
 /
 /tools/install
@@ -79,7 +79,7 @@ $
 
 ### Get the text content of a post
 
-```
+```console
 $ curl --silent https://nixos.org/nixos/about.html | htmlq  --text .main
 
           About NixOS
@@ -100,7 +100,7 @@ to change that.  NixOS has many innovative features:
 
 (This is a bit of a work in progress)
 
-```
+```console
 $ curl --silent https://mgdm.net | htmlq --pretty '#posts'
 <section id="posts">
   <h2>I write about...
