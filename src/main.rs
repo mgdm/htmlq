@@ -11,6 +11,11 @@ use std::fs::File;
 use std::io;
 use std::str;
 
+use syntect::easy::HighlightLines;
+use syntect::highlighting::{Style, ThemeSet};
+use syntect::parsing::SyntaxSet;
+use syntect::util::{as_24_bit_terminal_escaped, LinesWithEndings};
+
 #[derive(Debug, Clone)]
 struct Config {
     input_path: String,
@@ -168,6 +173,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         f => Box::new(File::create(f).unwrap()),
     };
 
+    let syntax_set = SyntaxSet::load_defaults_newlines();
+    let theme_set = ThemeSet::load_defaults();
+    let syntax = syntax_set.find_syntax_by_extension("html").unwrap();
+    let mut highlight = HighlightLines::new(syntax, &theme_set.themes["base16-ocean.dark"]);
+
     let document = kuchiki::parse_html().from_utf8().read_from(&mut input)?;
 
     for css_match in document
@@ -189,7 +199,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         if config.pretty_print {
             let content = pretty_print::pretty_print(node);
-            output.write_all(content.as_ref())?;
+            for line in LinesWithEndings::from(&content) {
+                let ranges: Vec<(Style, &str)> = highlight.highlight(line, &syntax_set);
+                let escaped = as_24_bit_terminal_escaped(&ranges[..], true);
+                output.write_all(escaped.as_ref())?;
+            }
             continue;
         }
 
