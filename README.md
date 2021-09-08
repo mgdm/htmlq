@@ -123,4 +123,4 @@ $ curl --silent https://mgdm.net | htmlq --pretty '#posts'
 $ curl -sL https://mdn.io/Array | htmlq '#description ~ *' | bat -l html
 ```
 
-> ![Syntax highlighted output](https://user-images.githubusercontent.com/2346707/132520957-2098026d-7513-4771-a590-ca54c0e14f09.png)
+> <img alt="Syntax highlighted output" width="700" src="https://user-images.githubusercontent.com/2346707/132520957-2098026d-7513-4771-a590-ca54c0e14f09.png" />
