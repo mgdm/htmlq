@@ -19,6 +19,7 @@ struct Config {
     text_only: bool,
     ignore_whitespace: bool,
     pretty_print: bool,
+    syntax_highlighting: bool,
     attributes: Option<Vec<String>>,
 }
 
@@ -40,6 +41,7 @@ impl Config {
             text_only: matches.is_present("text_only"),
             ignore_whitespace: matches.is_present("ignore_whitespace"),
             pretty_print: matches.is_present("pretty_print"),
+            syntax_highlighting: matches.is_present("syntax_highlighting"),
             attributes,
             selector,
         })
@@ -54,6 +56,7 @@ impl Default for Config {
             selector: "html".to_string(),
             ignore_whitespace: true,
             pretty_print: true,
+            syntax_highlighting: true,
             text_only: false,
             attributes: Some(vec![]),
         }
@@ -115,6 +118,12 @@ fn get_config<'a, 'b>() -> App<'a, 'b> {
                 .short("p")
                 .long("pretty")
                 .help("Pretty-print the serialised output"),
+        )
+        .arg(
+            Arg::with_name("syntax_highlighting")
+                .short("h")
+                .long("syntax-highlighting")
+                .help("Highlight the syntax of serialised output"),
         )
         .arg(
             Arg::with_name("text_only")
