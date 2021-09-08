@@ -1,5 +1,5 @@
 # htmlq
-Like jq, but for HTML. Uses CSS selectors to extract bits of content from HTML files. Mozilla's MDN has a good <a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors">reference for CSS selector syntax</a>.
+Like [`jq`](https://stedolan.github.io/jq/), but for HTML. Uses [CSS selectors](https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors) to extract bits of content from HTML files.
 
 ## Installation
 
