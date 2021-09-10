@@ -6,6 +6,8 @@ on:
 
 jobs:
   release:
+    permissions:
+      contents: write
     name: release
     runs-on: ubuntu-latest
     outputs:
@@ -23,6 +25,8 @@ jobs:
           prerelease: false
 
   linux:
+    permissions:
+      contents: write
     name: linux gnulibc build
     runs-on: ubuntu-latest
     needs: [release]
@@ -54,6 +58,8 @@ jobs:
           asset_content_type: application/gzip
 
   darwin:
+    permissions:
+      contents: write
     name: darwin
     runs-on: macos-latest
     needs: [release]
@@ -85,6 +91,8 @@ jobs:
           asset_content_type: application/gzip
 
   windows:
+    permissions:
+      contents: write
     name: windows
     runs-on: windows-latest
     needs: [release]
