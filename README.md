@@ -120,7 +120,7 @@ $ curl --silent https://mgdm.net | htmlq --pretty '#posts'
 ### Syntax highlighting with [`bat`](https://github.com/sharkdp/bat)
 
 ```console
-$ curl -s example.com | htmlq 'body' | bat -l html
+$ curl --silent example.com | htmlq 'body' | bat --language html
 ```
 
-> <img alt="Syntax highlighted output" width="700" src="https://user-images.githubusercontent.com/2346707/132675965-a299b2d8-b57d-41fd-86d1-baf871bdb69a.png" />
+> <img alt="Syntax highlighted output" width="700" src="https://user-images.githubusercontent.com/2346707/132808980-db8991ff-9177-4cb7-a018-39ad94282374.png" />
