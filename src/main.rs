@@ -4,6 +4,7 @@ extern crate kuchiki;
 #[macro_use]
 extern crate lazy_static;
 
+mod link;
 mod pretty_print;
 
 use clap::{App, Arg, ArgMatches};
@@ -19,6 +20,7 @@ struct Config {
     input_path: String,
     output_path: String,
     selector: String,
+    base: Option<String>,
     text_only: bool,
     ignore_whitespace: bool,
     pretty_print: bool,
@@ -37,9 +39,15 @@ impl Config {
             None => String::from("html"),
         };
 
+        let base: Option<String> = match matches.value_of("base") {
+            Some(val) => Some(val.to_owned()),
+            _ => None,
+        };
+
         Some(Config {
             input_path: String::from(matches.value_of("filename").unwrap_or("-")),
             output_path: String::from(matches.value_of("output").unwrap_or("-")),
+            base: base,
             text_only: matches.is_present("text_only"),
             ignore_whitespace: matches.is_present("ignore_whitespace"),
             pretty_print: matches.is_present("pretty_print"),
@@ -55,6 +63,7 @@ impl Default for Config {
             input_path: "-".to_string(),
             output_path: "-".to_string(),
             selector: "html".to_string(),
+            base: None,
             ignore_whitespace: true,
             pretty_print: true,
             text_only: false,
@@ -137,6 +146,13 @@ fn get_config<'a, 'b>() -> App<'a, 'b> {
                 .long("attribute")
                 .takes_value(true)
                 .help("Only return this attribute (if present) from selected elements"),
+        )
+        .arg(
+            Arg::with_name("base")
+                .short("b")
+                .long("base")
+                .takes_value(true)
+                .help("Use this URL as the base for links"),
         )
         .arg(
             Arg::with_name("selector")
