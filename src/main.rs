@@ -10,9 +10,11 @@ mod pretty_print;
 use clap::{App, Arg, ArgMatches};
 use kuchiki::traits::*;
 use kuchiki::NodeRef;
+use url::Url;
 use std::error::Error;
 use std::fs::File;
 use std::io;
+use std::process;
 use std::str;
 
 #[derive(Debug, Clone)]
@@ -47,7 +49,7 @@ impl Config {
         Some(Config {
             input_path: String::from(matches.value_of("filename").unwrap_or("-")),
             output_path: String::from(matches.value_of("output").unwrap_or("-")),
-            base: base,
+            base,
             text_only: matches.is_present("text_only"),
             ignore_whitespace: matches.is_present("ignore_whitespace"),
             pretty_print: matches.is_present("pretty_print"),
@@ -178,7 +180,23 @@ fn main() -> Result<(), Box<dyn Error>> {
         f => Box::new(File::create(f).unwrap()),
     };
 
+    let mut base: Option<Url> = None;
+    if let Some(b) = config.base {
+        let u = Url::parse(&b);
+
+        if let Err(e) = u {
+            eprintln!("Failed to parse the provided base URL: {}", e);
+            process::exit(1);
+        }
+
+        base = Some(u.unwrap());
+    }
+
     let document = kuchiki::parse_html().from_utf8().read_from(&mut input)?;
+
+    if let Some(base) = base {
+        link::rewrite_relative_urls(&document, &base);
+    }
 
     for css_match in document
         .select(&config.selector)

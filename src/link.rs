@@ -2,9 +2,7 @@ use kuchiki::NodeRef;
 use std::borrow::BorrowMut;
 use url::Url;
 
-fn rewrite_relative_urls(document: &NodeRef, base_url: &str) {
-    let base = Url::parse(base_url).unwrap();
-
+pub fn rewrite_relative_urls(document: &NodeRef, base: &Url) {
     for mut css_match in document
         .select("a, area, link")
         .expect("Failed to parse CSS selector while doing link rewriting")
@@ -39,9 +37,10 @@ mod tests {
             "<html><head></head><body><a href=\"/foo/bar\">Hello</a></body></html>".to_string();
         let expected_html =
             "<html><head></head><body><a href=\"https://mgdm.net/foo/bar\">Hello</a></body></html>";
+        let base = Url::parse("https://mgdm.net").unwrap();
 
         let doc = make_doc(&mut html);
-        rewrite_relative_urls(&doc, "https://mgdm.net");
+        rewrite_relative_urls(&doc, &base);
 
         let mut content: Vec<u8> = Vec::new();
         doc.serialize(&mut content).unwrap();
