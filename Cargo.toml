@@ -10,6 +10,6 @@ authors = ["Michael Maclean <michael@mgdm.net>"]
 edition = "2018"
 
 [dependencies]
-kuchiki = "0.7.3"
-html5ever = "0.23.0"
-clap = "2.33.0"
+kuchiki = "0.8.1"
+html5ever = "0.25.1"
+clap = "2.33.3"
