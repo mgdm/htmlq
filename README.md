@@ -3,8 +3,16 @@ Like jq, but for HTML. Uses CSS selectors to extract bits of content from HTML f
 
 ## Installation
 
+### Cargo
+
 ```
 cargo install htmlq
+```
+
+### Homebrew
+
+```
+brew install htmlq
 ```
 
 ## Usage
