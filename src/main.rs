@@ -1,6 +1,9 @@
 extern crate html5ever;
 extern crate kuchiki;
 
+#[macro_use]
+extern crate lazy_static;
+
 mod pretty_print;
 
 use clap::{App, Arg, ArgMatches};
