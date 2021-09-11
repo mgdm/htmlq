@@ -7,23 +7,26 @@ use html5ever::serialize::TraversalScope;
 use html5ever::QualName;
 // use kuchiki::traits::TendrilSink;
 use kuchiki::NodeRef;
+use std::collections::HashSet;
 use std::io;
 use std::io::Write;
 use std::str;
 
-const INLINE_ELEMENTS: &[&str] = &[
-    "a", "abbr", "acronym", "audio", "b", "bdi", "bdo", "big", "button", "canvas", "cite", "code",
-    "data", "datalist", "del", "dfn", "em", "embed", "i", "iframe", "img", "input", "ins", "kbd",
-    "label", "map", "mark", "meter", "noscript", "object", "output", "picture", "progress", "q",
-    "ruby", "s", "samp", "script", "select", "slot", "small", "span", "strong", "sub", "sup",
-    "svg", "template", "textarea", "time", "u", "tt", "var", "video", "wbr",
-];
+lazy_static! {
+    static ref INLINE_ELEMENTS: HashSet<&'static str> = vec![
+        "a", "abbr", "acronym", "audio", "b", "bdi", "bdo", "big", "button", "canvas", "cite",
+        "code", "data", "datalist", "del", "dfn", "em", "embed", "i", "iframe", "img", "input",
+        "ins", "kbd", "label", "map", "mark", "meter", "noscript", "object", "output", "picture",
+        "progress", "q", "ruby", "s", "samp", "script", "select", "slot", "small", "span",
+        "strong", "sub", "sup", "svg", "template", "textarea", "time", "u", "tt", "var", "video",
+        "wbr",
+    ]
+    .into_iter()
+    .collect();
+}
 
 fn is_inline(name: &str) -> bool {
-    match INLINE_ELEMENTS.iter().position(|&e| e == name) {
-        Some(_) => true,
-        _ => false,
-    }
+    INLINE_ELEMENTS.contains(name)
 }
 
 struct PrettyPrint<W: Write> {
