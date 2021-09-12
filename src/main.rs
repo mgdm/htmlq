@@ -163,7 +163,7 @@ fn get_config<'a, 'b>() -> App<'a, 'b> {
             Arg::with_name("detect_base")
                 .short("B")
                 .long("detect-base")
-                .help("Try to detect the base URL from the <base> tag in the document"),
+                .help("Try to detect the base URL from the <base> tag in the document. If not found, default to the value of --base, if supplied"),
         )
         .arg(
             Arg::with_name("selector")
