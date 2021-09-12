@@ -23,6 +23,7 @@ struct Config {
     output_path: String,
     selector: String,
     base: Option<String>,
+    detect_base: bool,
     text_only: bool,
     ignore_whitespace: bool,
     pretty_print: bool,
@@ -50,6 +51,7 @@ impl Config {
             input_path: String::from(matches.value_of("filename").unwrap_or("-")),
             output_path: String::from(matches.value_of("output").unwrap_or("-")),
             base,
+            detect_base: matches.is_present("detect_base"),
             text_only: matches.is_present("text_only"),
             ignore_whitespace: matches.is_present("ignore_whitespace"),
             pretty_print: matches.is_present("pretty_print"),
@@ -66,6 +68,7 @@ impl Default for Config {
             output_path: "-".to_string(),
             selector: "html".to_string(),
             base: None,
+            detect_base: false,
             ignore_whitespace: true,
             pretty_print: true,
             text_only: false,
@@ -157,6 +160,12 @@ fn get_config<'a, 'b>() -> App<'a, 'b> {
                 .help("Use this URL as the base for links"),
         )
         .arg(
+            Arg::with_name("detect_base")
+                .short("B")
+                .long("detect-base")
+                .help("Try to detect the base URL from the <base> tag in the document"),
+        )
+        .arg(
             Arg::with_name("selector")
                 .default_value("html")
                 .multiple(true)
@@ -193,6 +202,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let document = kuchiki::parse_html().from_utf8().read_from(&mut input)?;
+
+    if config.detect_base {
+        if let Some(b) = link::detect_base(&document) {
+            base = Some(b)
+        }
+    }
 
     if let Some(base) = base {
         link::rewrite_relative_urls(&document, &base);
