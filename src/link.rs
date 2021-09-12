@@ -24,6 +24,24 @@ mod tests {
 
     use super::*;
 
+    macro_rules! rewrite_tests {
+        ($($name:ident: $value:expr,)*) => {
+        $(
+            #[test]
+            fn $name() {
+                let (mut input, expected) = $value;
+                let base = Url::parse("https://mgdm.net").unwrap();
+                let doc = make_doc(&mut input);
+
+                rewrite_relative_urls(&doc, &base);
+
+                let result = serialize_doc(&doc);
+                assert_eq!(expected, result);
+            }
+        )*
+        }
+    }
+
     fn make_doc(html: &mut String) -> NodeRef {
         kuchiki::parse_html()
             .from_utf8()
@@ -31,21 +49,28 @@ mod tests {
             .unwrap()
     }
 
-    #[test]
-    fn it_works() {
-        let mut html =
-            "<html><head></head><body><a href=\"/foo/bar\">Hello</a></body></html>".to_string();
-        let expected_html =
-            "<html><head></head><body><a href=\"https://mgdm.net/foo/bar\">Hello</a></body></html>";
-        let base = Url::parse("https://mgdm.net").unwrap();
-
-        let doc = make_doc(&mut html);
-        rewrite_relative_urls(&doc, &base);
-
+    fn serialize_doc(doc: &NodeRef) -> String {
         let mut content: Vec<u8> = Vec::new();
         doc.serialize(&mut content).unwrap();
-        let result = std::str::from_utf8(&content).unwrap();
+        std::str::from_utf8(&content).unwrap().to_string()
+    }
 
-        assert_eq!(expected_html, result);
+    rewrite_tests! {
+        rewrite_a_href: (
+            "<html><head></head><body><a href=\"/foo/bar\">Hello</a></body></html>".to_string(),
+            "<html><head></head><body><a href=\"https://mgdm.net/foo/bar\">Hello</a></body></html>".to_string()
+        ),
+        rewrite_link_href: (
+            "<html><head><link  href=\"/style.css\" rel=\"stylesheet\"/></head><body>Hello</body></html>".to_string(),
+            "<html><head><link href=\"https://mgdm.net/style.css\" rel=\"stylesheet\"></head><body>Hello</body></html>".to_string()
+        ),
+        rewrite_map_area_href: (
+            "<html><head></head><body><map name=\"primary\"><area coords=\"75,75,75\" href=\"left.html\" shape=\"circle\"></map></body></html>".to_string(),
+            "<html><head></head><body><map name=\"primary\"><area coords=\"75,75,75\" href=\"https://mgdm.net/left.html\" shape=\"circle\"></map></body></html>".to_string()
+        ),
+        do_not_rewrite_absolute_url: (
+            "<html><head></head><body><a href=\"https://example.org/foo/bar\">Hello</a></body></html>".to_string(),
+            "<html><head></head><body><a href=\"https://example.org/foo/bar\">Hello</a></body></html>".to_string(),
+        ),
     }
 }

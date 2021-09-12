@@ -10,12 +10,12 @@ mod pretty_print;
 use clap::{App, Arg, ArgMatches};
 use kuchiki::traits::*;
 use kuchiki::NodeRef;
-use url::Url;
 use std::error::Error;
 use std::fs::File;
 use std::io;
 use std::process;
 use std::str;
+use url::Url;
 
 #[derive(Debug, Clone)]
 struct Config {
