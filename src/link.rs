@@ -18,6 +18,24 @@ pub fn rewrite_relative_urls(document: &NodeRef, base: &Url) {
     }
 }
 
+pub fn detect_base(document: &NodeRef) -> Option<Url> {
+    let mut css_match = document.select("base").unwrap();
+
+    if let Some(node) = css_match.next() {
+        let attrs = node.attributes.borrow();
+
+        if attrs.contains("href") {
+            let href = attrs.get("href").unwrap();
+            return match Url::parse(href) {
+                Ok(url) => Some(url),
+                _ => None,
+            };
+        }
+    }
+
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use html5ever::tendril::TendrilSink;
@@ -36,6 +54,20 @@ mod tests {
                 rewrite_relative_urls(&doc, &base);
 
                 let result = serialize_doc(&doc);
+                assert_eq!(expected, result);
+            }
+        )*
+        }
+    }
+
+    macro_rules! detect_base_tests {
+        ($($name:ident: $value:expr,)*) => {
+        $(
+            #[test]
+            fn $name() {
+                let (mut input, expected) = $value;
+                let doc = make_doc(&mut input);
+                let result = detect_base(&doc);
                 assert_eq!(expected, result);
             }
         )*
@@ -71,6 +103,17 @@ mod tests {
         do_not_rewrite_absolute_url: (
             "<html><head></head><body><a href=\"https://example.org/foo/bar\">Hello</a></body></html>".to_string(),
             "<html><head></head><body><a href=\"https://example.org/foo/bar\">Hello</a></body></html>".to_string(),
+        ),
+    }
+
+    detect_base_tests! {
+        base_ok: (
+            "<html><head><base href=\"https://example.org\"></head><body><a href=\"https://example.org/foo/bar\">Hello</a></body></html>".to_string(),
+            Some(Url::parse("https://example.org").unwrap())
+        ),
+        base_not_found: (
+            "<html><head></head><body><a href=\"https://example.org/foo/bar\">Hello</a></body></html>".to_string(),
+            None
         ),
     }
 }
