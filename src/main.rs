@@ -108,7 +108,7 @@ fn serialize_text(node: &NodeRef, ignore_whitespace: bool) -> String {
 
 fn get_config<'a, 'b>() -> App<'a, 'b> {
     App::new("htmlq")
-        .version("0.2.0")
+        .version("0.3.0")
         .author("Michael Maclean <michael@mgdm.net>")
         .about("Runs CSS selectors on HTML")
         .arg(
