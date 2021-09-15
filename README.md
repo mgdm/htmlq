@@ -19,7 +19,7 @@ brew install htmlq
 
 ```console
 $ htmlq -h
-htmlq 0.2.0
+htmlq 0.3.0
 Michael Maclean <michael@mgdm.net>
 Runs CSS selectors on HTML
 

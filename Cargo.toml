@@ -5,7 +5,7 @@ homepage = "https://github.com/mgdm/htmlq"
 repository = "https://github.com/mgdm/htmlq"
 readme = "README.md"
 license = "MIT"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Michael Maclean <michael@mgdm.net>"]
 edition = "2018"
 
