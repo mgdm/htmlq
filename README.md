@@ -39,7 +39,6 @@ OPTIONS:
 
 ARGS:
     <selector>...    The CSS expression to select
-$
 ```
 
 ## Examples
@@ -82,7 +81,6 @@ https://blog.rust-lang.org/
 https://blog.rust-lang.org/2019/04/25/Rust-1.34.1.html
 https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html
 [...]
-$
 ```
 
 ### Get the text content of a post
