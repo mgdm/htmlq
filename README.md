@@ -1,23 +1,23 @@
 # htmlq
-Like jq, but for HTML. Uses CSS selectors to extract bits of content from HTML files. Mozilla's MDN has a good <a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors">reference for CSS selector syntax</a>.
+Like [`jq`](https://stedolan.github.io/jq/), but for HTML. Uses [CSS selectors](https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors) to extract bits of content from HTML files.
 
 ## Installation
 
-### Cargo
+### [Cargo](https://docs.rs/htmlq)
 
-```
+```sh
 cargo install htmlq
 ```
 
-### Homebrew
+### [Homebrew](https://formulae.brew.sh/formula/htmlq)
 
-```
+```sh
 brew install htmlq
 ```
 
 ## Usage
 
-```
+```console
 $ htmlq -h
 htmlq 0.2.0
 Runs CSS selectors on HTML
@@ -39,14 +39,13 @@ OPTIONS:
 
 ARGS:
     <selector>...    The CSS expression to select
-$
 ```
 
 ## Examples
 
 ### Using with cURL to find part of a page by ID
 
-```bash
+```console
 $ curl --silent https://www.rust-lang.org/ | htmlq '#get-help'
 <div class="four columns mt3 mt0-l" id="get-help">
         <h4>Get help!</h4>
@@ -69,7 +68,7 @@ $ curl --silent https://www.rust-lang.org/ | htmlq '#get-help'
 
 ### Find all the links in a page
 
-```bash
+```console
 $ curl --silent https://www.rust-lang.org/ | htmlq --attribute href a
 /
 /tools/install
@@ -82,12 +81,11 @@ https://blog.rust-lang.org/
 https://blog.rust-lang.org/2019/04/25/Rust-1.34.1.html
 https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html
 [...]
-$
 ```
 
 ### Get the text content of a post
 
-```
+```console
 $ curl --silent https://nixos.org/nixos/about.html | htmlq  --text .main
 
           About NixOS
@@ -108,7 +106,7 @@ to change that.  NixOS has many innovative features:
 
 (This is a bit of a work in progress)
 
-```
+```console
 $ curl --silent https://mgdm.net | htmlq --pretty '#posts'
 <section id="posts">
   <h2>I write about...
@@ -124,3 +122,11 @@ $ curl --silent https://mgdm.net | htmlq --pretty '#posts'
     </li>
 [...]
 ```
+
+### Syntax highlighting with [`bat`](https://github.com/sharkdp/bat)
+
+```console
+$ curl --silent example.com | htmlq 'body' | bat --language html
+```
+
+> <img alt="Syntax highlighted output" width="700" src="https://user-images.githubusercontent.com/2346707/132808980-db8991ff-9177-4cb7-a018-39ad94282374.png" />
