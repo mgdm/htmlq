@@ -3,13 +3,13 @@ Like [`jq`](https://stedolan.github.io/jq/), but for HTML. Uses [CSS selectors](
 
 ## Installation
 
-### Cargo
+### [Cargo](https://docs.rs/htmlq)
 
 ```sh
 cargo install htmlq
 ```
 
-### Homebrew
+### [Homebrew](https://formulae.brew.sh/formula/htmlq)
 
 ```sh
 brew install htmlq
