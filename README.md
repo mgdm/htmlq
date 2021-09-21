@@ -3,7 +3,7 @@ Like [`jq`](https://stedolan.github.io/jq/), but for HTML. Uses [CSS selectors](
 
 ## Installation
 
-### [Cargo](https://docs.rs/htmlq)
+### [Cargo](https://crates.io/crates/htmlq)
 
 ```sh
 cargo install htmlq
