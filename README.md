@@ -9,6 +9,12 @@ Like [`jq`](https://stedolan.github.io/jq/), but for HTML. Uses [CSS selectors](
 cargo install htmlq
 ```
 
+### [FreeBSD pkg](https://www.freshports.org/textproc/htmlq)
+
+```sh
+pkg install htmlq
+```
+
 ### [Homebrew](https://formulae.brew.sh/formula/htmlq)
 
 ```sh
