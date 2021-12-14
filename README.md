@@ -21,6 +21,12 @@ pkg install htmlq
 brew install htmlq
 ```
 
+### [Scoop](https://scoop.sh/)
+
+```sh
+scoop install htmlq
+```
+
 ## Usage
 
 ```console
