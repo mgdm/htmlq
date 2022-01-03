@@ -35,25 +35,20 @@ struct Config {
 
 impl Config {
     fn from_args(matches: ArgMatches) -> Option<Config> {
-        let attributes: Option<Vec<String>> = match matches.values_of("attribute") {
-            Some(values) => Some(values.map(String::from).collect()),
-            None => None,
-        };
+        let attributes = matches
+            .values_of("attribute")
+            .map(|values| values.map(String::from).collect());
 
-        let remove_nodes: Option<Vec<String>> = match matches.values_of("remove_nodes") {
-            Some(values) => Some(values.map(String::from).collect()),
-            None => None,
-        };
+        let remove_nodes = matches
+            .values_of("remove_nodes")
+            .map(|values| values.map(String::from).collect());
 
         let selector: String = match matches.values_of("selector") {
             Some(values) => values.collect::<Vec<&str>>().join(" "),
             None => String::from("html"),
         };
 
-        let base: Option<String> = match matches.value_of("base") {
-            Some(val) => Some(val.to_owned()),
-            _ => None,
-        };
+        let base = matches.value_of("base").map(|b| b.to_owned());
 
         Some(Config {
             input_path: String::from(matches.value_of("filename").unwrap_or("-")),
@@ -109,7 +104,7 @@ fn serialize_text(node: &NodeRef, ignore_whitespace: bool) -> String {
         result.push_str(&text_node.borrow());
 
         if ignore_whitespace {
-            result.push_str("\n");
+            result.push('\n');
         }
     }
 
