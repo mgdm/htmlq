@@ -19,12 +19,12 @@ brew install htmlq
 
 ```console
 $ htmlq -h
-htmlq 0.3.0
+htmlq 0.4.0
 Michael Maclean <michael@mgdm.net>
 Runs CSS selectors on HTML
 
 USAGE:
-    htmlq [FLAGS] [OPTIONS] [selector]...
+    htmlq [FLAGS] [OPTIONS] [--] [selector]...
 
 FLAGS:
     -B, --detect-base          Try to detect the base URL from the <base> tag in the document. If not found, default to
@@ -36,10 +36,12 @@ FLAGS:
     -V, --version              Prints version information
 
 OPTIONS:
-    -a, --attribute <attribute>    Only return this attribute (if present) from selected elements
-    -b, --base <base>              Use this URL as the base for links
-    -f, --filename <FILE>          The input file. Defaults to stdin
-    -o, --output <FILE>            The output file. Defaults to stdout
+    -a, --attribute <attribute>         Only return this attribute (if present) from selected elements
+    -b, --base <base>                   Use this URL as the base for links
+    -f, --filename <FILE>               The input file. Defaults to stdin
+    -o, --output <FILE>                 The output file. Defaults to stdout
+    -r, --remove-nodes <SELECTOR>...    Remove nodes matching this expression before output. May be specified multiple
+                                        times
 
 ARGS:
     <selector>...    The CSS expression to select [default: html]
@@ -105,6 +107,44 @@ be, you cannot easily undo changes to the system, and so on.  We want
 to change that.  NixOS has many innovative features:
 
 [...]
+```
+
+### Remove a node before output
+
+There's a big SVG image in this page that I don't need, so here's how to remove it.
+
+```console
+$ curl --silent https://nixos.org/ | ./target/debug/htmlq '.whynix' --remove-nodes svg
+<ul class="whynix">
+      <li>
+
+        <h2>Reproducible</h2>
+        <p>
+          Nix builds packages in isolation from each other. This ensures that they
+          are reproducible and don't have undeclared dependencies, so <strong>if a
+            package works on one machine, it will also work on another</strong>.
+        </p>
+      </li>
+      <li>
+
+        <h2>Declarative</h2>
+        <p>
+          Nix makes it <strong>trivial to share development and build
+            environments</strong> for your projects, regardless of what programming
+          languages and tools you’re using.
+        </p>
+      </li>
+      <li>
+
+        <h2>Reliable</h2>
+        <p>
+          Nix ensures that installing or upgrading one package <strong>cannot
+            break other packages</strong>. It allows you to <strong>roll back to
+            previous versions</strong>, and ensures that no package is in an
+          inconsistent state during an upgrade.
+        </p>
+      </li>
+    </ul>
 ```
 
 ### Pretty print HTML

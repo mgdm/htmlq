@@ -113,7 +113,7 @@ fn serialize_text(node: &NodeRef, ignore_whitespace: bool) -> String {
 
 fn get_config<'a, 'b>() -> App<'a, 'b> {
     App::new("htmlq")
-        .version("0.3.0")
+        .version("0.4.0")
         .author("Michael Maclean <michael@mgdm.net>")
         .about("Runs CSS selectors on HTML")
         .arg(
@@ -177,6 +177,7 @@ fn get_config<'a, 'b>() -> App<'a, 'b> {
                 .multiple(true)
                 .number_of_values(1)
                 .takes_value(true)
+                .value_name("SELECTOR")
                 .help("Remove nodes matching this expression before output. May be specified multiple times")
         )
         .arg(
