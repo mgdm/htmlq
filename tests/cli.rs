@@ -1,28 +1,6 @@
-use assert_cmd::prelude::*; // Add methods on commands
-use predicates::prelude::*; // Used for writing assertions
-use std::io::{BufReader, BufWriter, Write};
-use std::process::{Command, Stdio}; // Run programs
-
-#[test]
-fn happy_path() -> Result<(), Box<dyn std::error::Error>> {
-    let input = "<html><head></head><body><div class=\"hi\"><a href=\"/foo/bar\">Hello</a></div></body></html>".to_string();
-    let mut cmd = Command::cargo_bin("htmlq")?;
-    cmd.arg(".hi");
-
-    let mut process = cmd.stdin(Stdio::piped()).spawn().unwrap();
-    write!(process.stdin.as_ref().unwrap(), "{}", input).unwrap();
-
-    let ecode = process.wait().expect("failed wait for process");
-    assert!(ecode.success());
-
-    // println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-
-    // cmd.assert()
-    //     .failure()
-    //     .stderr(predicate::str::contains("could not read file"));
-
-    Ok(())
-}
+use assert_cmd::prelude::*;
+use std::io::{BufRead, BufReader, BufWriter, Write};
+use std::process::{Command, Stdio};
 
 #[test]
 fn happy_path2() -> Result<(), Box<dyn std::error::Error>> {
@@ -35,15 +13,23 @@ fn happy_path2() -> Result<(), Box<dyn std::error::Error>> {
         .spawn()
         .unwrap();
 
-    let mut stdin = process.stdin.as_ref().unwrap();
+    let mut stdin = process.stdin.take().unwrap();
     let mut writer = BufWriter::new(&mut stdin);
-    // let mut stdout = process.stdout.unwrap();
-    // let mut out = BufReader::new(&mut stdout);
+
+    let mut stdout = process.stdout.take().unwrap();
+    let out = BufReader::new(&mut stdout);
 
     writer.write_all(input.as_bytes()).unwrap();
+    writer.flush().unwrap();
+    drop(writer);
+    drop(stdin);
 
     let exit_code = process.wait().expect("failed wait for process");
     assert!(exit_code.success());
+
+    for line in out.lines() {
+        println!("out: {}", line?);
+    }
 
     Ok(())
 }
