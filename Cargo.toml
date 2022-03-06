@@ -19,3 +19,7 @@ html5ever = "0.25.1"
 clap = "2.33.3"
 lazy_static = "1.4.0"
 url = "2.2.2"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "2.1"
