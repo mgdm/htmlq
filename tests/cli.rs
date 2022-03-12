@@ -6,10 +6,10 @@ macro_rules! cmd_success_tests {
     $(
         #[test]
         fn $name(){
-            let (stdin, arg, expected) = $value;
+            let (stdin, args, expected) = $value;
             Command::cargo_bin("htmlq")
                 .unwrap()
-                .arg(arg)
+                .args(args)
                 .write_stdin(stdin)
                 .assert()
                 .success()
@@ -22,12 +22,17 @@ macro_rules! cmd_success_tests {
 cmd_success_tests!(
     find_by_class: (
         "<html><head></head><body><div class=\"hi\"><a href=\"/foo/bar\">Hello</a></div></body></html>",
-        ".hi",
+        [".hi"],
         "<div class=\"hi\"><a href=\"/foo/bar\">Hello</a></div>\n"
     ),
     find_by_id: (
         "<html><head></head><body><div id=\"my-id\"><a href=\"/foo/bar\">Hello</a></div></body></html>",
-        "#my-id",
+        ["#my-id"],
         "<div id=\"my-id\"><a href=\"/foo/bar\">Hello</a></div>\n"
+    ),
+    remove_links: (
+        "<html><head></head><body><div id=\"my-id\"><a href=\"/foo/bar\">Hello</a></div></body></html>",
+        ["#my-id", "--remove-nodes", "a"],
+        "<div id=\"my-id\"></div>\n",
     ),
 );
