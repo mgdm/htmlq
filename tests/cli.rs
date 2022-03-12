@@ -1,40 +1,16 @@
-use assert_cmd::prelude::*;
-use std::io::{BufRead, BufReader, BufWriter, Read, Write};
-use std::process::{Command, Stdio};
+use assert_cmd::Command;
+use predicates::prelude::*;
 
 #[test]
-fn happy_path2() -> Result<(), Box<dyn std::error::Error>> {
-    let input = "<html><head></head><body><div class=\"hi\"><a href=\"/foo/bar\">Hello</a></div></body></html>".to_string();
+fn happy_path3() {
+    let input = "<html><head></head><body><div class=\"hi\"><a href=\"/foo/bar\">Hello</a></div></body></html>";
+    let expected_out = "<div class=\"hi\"><a href=\"/foo/bar\">Hello</a></div>\n";
 
-    let mut process = Command::cargo_bin("htmlq")?
+    Command::cargo_bin("htmlq")
+        .unwrap()
         .arg(".hi")
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("htmlq process gets spawned");
-
-    let mut stdin = process.stdin.take().expect("take stdin from process");
-    let mut writer = BufWriter::new(&mut stdin);
-
-    let mut stdout = process.stdout.take().expect("take stdout from process");
-    let mut out = BufReader::new(&mut stdout);
-
-    writer
-        .write_all(input.as_bytes())
-        .expect("writer to the stdin of process");
-    writer.flush().expect("writer flush");
-    drop(writer);
-    drop(stdin);
-
-    let exit_code = process.wait().expect("failed wait for process");
-    assert!(exit_code.success());
-    let mut buf = String::new();
-    out.read_to_string(&mut buf).expect("read stdout to string");
-
-    assert_eq!(
-        buf,
-        "<div class=\"hi\"><a href=\"/foo/bar\">Hello</a></div>\n"
-    );
-
-    Ok(())
+        .write_stdin(input)
+        .assert()
+        .success()
+        .stdout(predicate::str::diff(expected_out));
 }
