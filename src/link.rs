@@ -89,30 +89,30 @@ mod tests {
 
     rewrite_tests! {
         rewrite_a_href: (
-            "<html><head></head><body><a href=\"/foo/bar\">Hello</a></body></html>".to_string(),
-            "<html><head></head><body><a href=\"https://mgdm.net/foo/bar\">Hello</a></body></html>".to_string()
+            r#"<html><head></head><body><a href="/foo/bar">Hello</a></body></html>"#.to_string(),
+            r#"<html><head></head><body><a href="https://mgdm.net/foo/bar">Hello</a></body></html>"#.to_string()
         ),
         rewrite_link_href: (
-            "<html><head><link  href=\"/style.css\" rel=\"stylesheet\"/></head><body>Hello</body></html>".to_string(),
-            "<html><head><link href=\"https://mgdm.net/style.css\" rel=\"stylesheet\"></head><body>Hello</body></html>".to_string()
+            r#"<html><head><link  href="/style.css" rel="stylesheet"/></head><body>Hello</body></html>"#.to_string(),
+            r#"<html><head><link href="https://mgdm.net/style.css" rel="stylesheet"></head><body>Hello</body></html>"#.to_string()
         ),
         rewrite_map_area_href: (
-            "<html><head></head><body><map name=\"primary\"><area coords=\"75,75,75\" href=\"left.html\" shape=\"circle\"></map></body></html>".to_string(),
-            "<html><head></head><body><map name=\"primary\"><area coords=\"75,75,75\" href=\"https://mgdm.net/left.html\" shape=\"circle\"></map></body></html>".to_string()
+            r#"<html><head></head><body><map name="primary"><area coords="75,75,75" href="left.html" shape="circle"></map></body></html>"#.to_string(),
+            r#"<html><head></head><body><map name="primary"><area coords="75,75,75" href="https://mgdm.net/left.html" shape="circle"></map></body></html>"#.to_string()
         ),
         do_not_rewrite_absolute_url: (
-            "<html><head></head><body><a href=\"https://example.org/foo/bar\">Hello</a></body></html>".to_string(),
-            "<html><head></head><body><a href=\"https://example.org/foo/bar\">Hello</a></body></html>".to_string(),
+            r#"<html><head></head><body><a href="https://example.org/foo/bar">Hello</a></body></html>"#.to_string(),
+            r#"<html><head></head><body><a href="https://example.org/foo/bar">Hello</a></body></html>"#.to_string(),
         ),
     }
 
     detect_base_tests! {
         base_ok: (
-            "<html><head><base href=\"https://example.org\"></head><body><a href=\"https://example.org/foo/bar\">Hello</a></body></html>".to_string(),
+            r#"<html><head><base href="https://example.org"></head><body><a href="https://example.org/foo/bar">Hello</a></body></html>"#.to_string(),
             Some(Url::parse("https://example.org").unwrap())
         ),
         base_not_found: (
-            "<html><head></head><body><a href=\"https://example.org/foo/bar\">Hello</a></body></html>".to_string(),
+            r#"<html><head></head><body><a href="https://example.org/foo/bar">Hello</a></body></html>"#.to_string(),
             None
         ),
     }
