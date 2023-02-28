@@ -7,10 +7,9 @@ repository = "https://github.com/mgdm/htmlq"
 documentation = "https://github.com/mgdm/htmlq/blob/master/README.md"
 readme = "README.md"
 license = "MIT"
-license-file = "LICENSE.md"
 version = "0.4.0"
 authors = ["Michael Maclean <michael@mgdm.net>"]
-edition = "2018"
+edition = "2021"
 exclude = ["/.github"]
 
 [dependencies]

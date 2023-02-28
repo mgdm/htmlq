@@ -27,6 +27,12 @@ brew install htmlq
 scoop install htmlq
 ```
 
+### [Arch](https://archlinux.org/packages/community/x86_64/htmlq/)
+
+```sh
+sudo pacman -S htmlq
+```
+
 ## Usage
 
 ```console
