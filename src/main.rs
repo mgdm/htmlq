@@ -95,7 +95,11 @@ fn select_attributes(node: &NodeRef, attributes: &Vec<String>, attribute_separat
                         writeln!(output, "{}", val).ok();
                     }
                 } else {
-                    writeln!(output, "").ok();
+                    if it.peek().is_some() {
+                        write!(output, "{}{}", "", attribute_separator).ok();
+                    } else {
+                        writeln!(output, "{}", "").ok();
+                    }
                 }
             }
         }
