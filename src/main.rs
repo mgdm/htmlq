@@ -29,6 +29,7 @@ struct Config {
     pretty_print: bool,
     remove_nodes: Option<Vec<String>>,
     attributes: Option<Vec<String>>,
+    attribute_separator: String,
 }
 
 impl Config {
@@ -58,6 +59,7 @@ impl Config {
             pretty_print: matches.is_present("pretty_print"),
             remove_nodes,
             attributes,
+            attribute_separator: matches.value_of("attribute_separator").unwrap_or(" ").to_string(),
             selector,
         })
     }
@@ -76,16 +78,28 @@ impl Default for Config {
             text_only: false,
             remove_nodes: None,
             attributes: Some(vec![]),
+            attribute_separator: " ".to_string(),
         }
     }
 }
 
-fn select_attributes(node: &NodeRef, attributes: &[String], output: &mut dyn io::Write) {
+fn select_attributes(node: &NodeRef, attributes: &Vec<String>, attribute_separator: &String, output: &mut dyn io::Write) {
     if let Some(as_element) = node.as_element() {
-        for attr in attributes {
+        let mut it = attributes.iter().peekable();
+        while let Some(attr) = it.next() {
             if let Ok(elem_atts) = as_element.attributes.try_borrow() {
                 if let Some(val) = elem_atts.get(attr.as_str()) {
-                    writeln!(output, "{}", val).ok();
+                    if it.peek().is_some() {
+                        write!(output, "{}{}", val, attribute_separator).ok();
+                    } else {
+                        writeln!(output, "{}", val).ok();
+                    }
+                } else {
+                    if it.peek().is_some() {
+                        write!(output, "{}{}", "", attribute_separator).ok();
+                    } else {
+                        writeln!(output, "{}", "").ok();
+                    }
                 }
             }
         }
@@ -152,8 +166,19 @@ fn get_config<'a, 'b>() -> App<'a, 'b> {
             Arg::with_name("attribute")
                 .short("a")
                 .long("attribute")
+                .multiple(true)
+                .number_of_values(1)
                 .takes_value(true)
-                .help("Only return this attribute (if present) from selected elements"),
+                .value_name("ATTRIBUTE")
+                .help("Only return this attribute (if present) from selected elements. May be specified multiple times"),
+        )
+        .arg(
+            Arg::with_name("attribute_separator")
+                .short("s")
+                .long("attribute-separator")
+                .takes_value(true)
+                .value_name("SEPARATOR")
+                .help("The separator to use when printing attributes. Defaults to a space"),
         )
         .arg(
             Arg::with_name("base")
@@ -236,8 +261,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         .for_each(|matched_noderef| {
             let node = matched_noderef.as_node();
 
-            if let Some(attributes) = &config.attributes {
-                select_attributes(node, attributes, &mut output);
+            if let Some(attributes) = config.attributes.as_ref() {
+                select_attributes(node, attributes, &config.attribute_separator, &mut output);
                 return;
             }
 
