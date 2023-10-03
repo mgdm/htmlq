@@ -94,6 +94,8 @@ fn select_attributes(node: &NodeRef, attributes: &Vec<String>, attribute_separat
                     } else {
                         writeln!(output, "{}", val).ok();
                     }
+                } else {
+                    writeln!(output, "").ok();
                 }
             }
         }
