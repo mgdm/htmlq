@@ -68,7 +68,7 @@ impl Default for Config {
         Self {
             input_path: "-".to_string(),
             output_path: "-".to_string(),
-            selector: "html".to_string(),
+            selector: ":root".to_string(),
             base: None,
             detect_base: false,
             ignore_whitespace: true,
@@ -180,7 +180,7 @@ fn get_config<'a, 'b>() -> App<'a, 'b> {
         )
         .arg(
             Arg::with_name("selector")
-                .default_value("html")
+                .default_value(":root")
                 .multiple(true)
                 .help("The CSS expression to select"),
         )
