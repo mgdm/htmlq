@@ -7,16 +7,15 @@ repository = "https://github.com/mgdm/htmlq"
 documentation = "https://github.com/mgdm/htmlq/blob/master/README.md"
 readme = "README.md"
 license = "MIT"
-license-file = "LICENSE.md"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Michael Maclean <michael@mgdm.net>"]
-edition = "2021"
+edition = "2024"
 exclude = ["/.github"]
 
 [dependencies]
-kuchiki = "0.8.1"
-html5ever = "0.25.1"
-clap = "2.33.3"
+kuchikiki = "0.8"
+html5ever = "0.26.0"
+clap = { version = "4.5", features = ["derive"] }
 lazy_static = "1.4.0"
 url = "2.2.2"
 
