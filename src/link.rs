@@ -4,7 +4,7 @@ use url::Url;
 
 pub fn rewrite_relative_url(node: &NodeRef, base: &Url) {
     let Some(elem) = node.as_element() else {
-        return
+        return;
     };
     if !(local_name!("a") == elem.name.local
         || local_name!("link") == elem.name.local
@@ -16,7 +16,7 @@ pub fn rewrite_relative_url(node: &NodeRef, base: &Url) {
 
     if attrs.contains("href") {
         let Some(url) = attrs.get_mut("href") else {
-            return
+            return;
         };
         if url.starts_with("////") {
             *url = url.trim_start_matches('/').to_string();
@@ -29,7 +29,7 @@ pub fn rewrite_relative_url(node: &NodeRef, base: &Url) {
 
 pub fn detect_base(document: &NodeRef) -> Option<Url> {
     let Ok(node) = document.select_first("base") else {
-        return None
+        return None;
     };
 
     let attrs = node.attributes.borrow();
