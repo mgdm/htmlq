@@ -1,12 +1,13 @@
+use html5ever::QualName;
 use html5ever::serialize::AttrRef;
 use html5ever::serialize::HtmlSerializer;
 use html5ever::serialize::Serialize;
 use html5ever::serialize::SerializeOpts;
 use html5ever::serialize::Serializer;
 use html5ever::serialize::TraversalScope;
-use html5ever::QualName;
 // use kuchiki::traits::TendrilSink;
 use kuchikiki::NodeRef;
+use lazy_static::lazy_static;
 use std::collections::HashSet;
 use std::io;
 use std::io::Write;
