@@ -1,5 +1,5 @@
 use html5ever::local_name;
-use kuchiki::NodeRef;
+use kuchikiki::NodeRef;
 use url::Url;
 
 pub fn rewrite_relative_url(node: &NodeRef, base: &Url) {
@@ -91,7 +91,7 @@ mod tests {
     }
 
     fn make_doc(html: &mut String) -> NodeRef {
-        kuchiki::parse_html()
+        kuchikiki::parse_html()
             .from_utf8()
             .read_from(&mut html.as_bytes())
             .unwrap()

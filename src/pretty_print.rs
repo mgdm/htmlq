@@ -6,7 +6,7 @@ use html5ever::serialize::Serializer;
 use html5ever::serialize::TraversalScope;
 use html5ever::QualName;
 // use kuchiki::traits::TendrilSink;
-use kuchiki::NodeRef;
+use kuchikiki::NodeRef;
 use std::collections::HashSet;
 use std::io;
 use std::io::Write;

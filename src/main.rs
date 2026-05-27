@@ -1,5 +1,5 @@
 extern crate html5ever;
-extern crate kuchiki;
+extern crate kuchikiki;
 
 #[macro_use]
 extern crate lazy_static;
@@ -8,8 +8,8 @@ mod link;
 mod pretty_print;
 
 use clap::{App, Arg, ArgMatches};
-use kuchiki::traits::*;
-use kuchiki::NodeRef;
+use kuchikiki::traits::*;
+use kuchikiki::NodeRef;
 use std::borrow::BorrowMut;
 use std::error::Error;
 use std::fs::File;
@@ -202,7 +202,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         f => Box::new(File::create(f).expect("should have created output file")),
     };
 
-    let document = kuchiki::parse_html().from_utf8().read_from(&mut input)?;
+    let document = kuchikiki::parse_html().from_utf8().read_from(&mut input)?;
 
     let base: Option<Url> = match (&config.base, &config.detect_base) {
         (Some(base), true) => link::detect_base(&document).or(Url::parse(&base).ok()),

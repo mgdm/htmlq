@@ -14,8 +14,8 @@ edition = "2021"
 exclude = ["/.github"]
 
 [dependencies]
-kuchiki = "0.8.1"
-html5ever = "0.25.1"
+kuchikiki = "0.8"
+html5ever = "0.26.0"
 clap = "2.33.3"
 lazy_static = "1.4.0"
 url = "2.2.2"
