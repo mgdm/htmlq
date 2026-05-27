@@ -54,14 +54,29 @@ struct Config {
     /// Output only the contents of the given attributes.
     #[arg(short, long)]
     attributes: Vec<String>,
+
+    #[arg(short, long)]
+    /// Use this separator when multiple attributes are output   
+    attribute_separator: String,
 }
 
-fn select_attributes(node: &NodeRef, attributes: &[String], output: &mut dyn io::Write) {
+fn select_attributes(node: &NodeRef, attributes: &Vec<String>, attribute_separator: &String, output: &mut dyn io::Write) {
     if let Some(as_element) = node.as_element() {
-        for attr in attributes {
+        let mut it = attributes.iter().peekable();
+        while let Some(attr) = it.next() {
             if let Ok(elem_atts) = as_element.attributes.try_borrow() {
                 if let Some(val) = elem_atts.get(attr.as_str()) {
-                    writeln!(output, "{}", val).ok();
+                    if it.peek().is_some() {
+                        write!(output, "{}{}", val, attribute_separator).ok();
+                    } else {
+                        writeln!(output, "{}", val).ok();
+                    }
+                } else {
+                    if it.peek().is_some() {
+                        write!(output, "{}{}", "", attribute_separator).ok();
+                    } else {
+                        writeln!(output, "{}", "").ok();
+                    }
                 }
             }
         }
@@ -129,8 +144,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         .for_each(|matched_noderef| {
             let node = matched_noderef.as_node();
 
-            if !config.attributes.is_empty() {
-                select_attributes(node, &config.attributes, &mut output);
+            if let Some(attributes) = config.attributes.as_ref() {
+                select_attributes(node, attributes, &config.attribute_separator, &mut output);
                 return;
             }
 
