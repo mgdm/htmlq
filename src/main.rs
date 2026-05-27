@@ -219,13 +219,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     document
         .select(&config.selector)
         .expect("Failed to parse CSS selector")
-        .filter(|noderef| {
-            if let Ok(mut node) = noderef.as_node().select_first(&remove_node_selector) {
-                node.borrow_mut().as_node().detach();
-                false
-            } else {
-                true
-            }
+        .inspect(|noderef| {
+            let Ok(remove) = noderef.as_node().select_first(&remove_node_selector) else {
+                return;
+            };
+
+            remove.as_node().detach();
         })
         .map(|node| {
             if let Some(base) = &base {
