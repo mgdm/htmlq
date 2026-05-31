@@ -15,6 +15,12 @@ cargo install htmlq
 pkg install htmlq
 ```
 
+### [OpenBSD pkg_add](https://openbsd.app/?search=htmlq)
+
+```sh
+pkg_add htmlq
+```
+
 ### [Homebrew](https://formulae.brew.sh/formula/htmlq)
 
 ```sh
