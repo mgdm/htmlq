@@ -27,6 +27,12 @@ brew install htmlq
 scoop install htmlq
 ```
 
+### [Mise-en-place](https://mise.jdx.dev)
+
+```sh
+mise use -g htmlq@latest
+```
+
 ## Usage
 
 ```console
