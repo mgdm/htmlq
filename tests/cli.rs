@@ -36,3 +36,17 @@ cmd_success_tests!(
         "<div id=\"my-id\"></div>\n",
     ),
 );
+
+#[test]
+fn invalid_selector_reports_error_without_panicking() {
+    Command::cargo_bin("htmlq")
+        .unwrap()
+        .arg("div:has(h1)")
+        .write_stdin("<div><h1>h1</h1></div><div><p>p</p></div>")
+        .assert()
+        .code(2)
+        .stderr(
+            predicate::str::contains("Failed to parse CSS selector: div:has(h1)")
+                .and(predicate::str::contains("panicked").not()),
+        );
+}
