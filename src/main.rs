@@ -110,9 +110,15 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let remove_node_selector = config.remove_nodes.join(",");
 
-    document
-        .select(&config.selector)
-        .expect("Failed to parse CSS selector")
+    let selection = match document.select(&config.selector) {
+        Ok(selection) => selection,
+        Err(()) => {
+            eprintln!("Failed to parse CSS selector: {}", config.selector);
+            std::process::exit(2);
+        }
+    };
+
+    selection
         .inspect(|noderef| {
             let Ok(remove) = noderef.as_node().select_first(&remove_node_selector) else {
                 return;
