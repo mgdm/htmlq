@@ -4,7 +4,8 @@ extern crate kuchikiki;
 mod link;
 mod pretty_print;
 
-use clap::Parser;
+use clap::{CommandFactory, Parser};
+use clap_complete::Shell;
 use kuchikiki::traits::*;
 use kuchikiki::NodeRef;
 use std::error::Error;
@@ -54,6 +55,10 @@ struct Config {
     /// Output only the contents of the given attributes.
     #[arg(short, long)]
     attributes: Vec<String>,
+
+    /// Print shell completions for the given shell to stdout and exit.
+    #[arg(long, value_name = "SHELL", exclusive = true)]
+    completions: Option<Shell>,
 }
 
 fn select_attributes(node: &NodeRef, attributes: &[String], output: &mut dyn io::Write) {
@@ -87,6 +92,11 @@ fn serialize_text(node: &NodeRef, ignore_whitespace: bool) -> String {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::parse();
+
+    if let Some(shell) = config.completions {
+        clap_complete::generate(shell, &mut Config::command(), "htmlq", &mut io::stdout());
+        return Ok(());
+    }
 
     let mut input: Box<dyn io::Read> = match config.input_path.as_ref() {
         "-" => Box::new(std::io::stdin()),
