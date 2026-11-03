@@ -5,8 +5,8 @@ mod link;
 mod pretty_print;
 
 use clap::Parser;
-use kuchikiki::traits::*;
 use kuchikiki::NodeRef;
+use kuchikiki::traits::*;
 use std::error::Error;
 use std::fs::File;
 use std::io;
@@ -110,9 +110,14 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let remove_node_selector = config.remove_nodes.join(",");
 
-    document
-        .select(&config.selector)
-        .expect("Failed to parse CSS selector")
+    let matches = document.select(&config.selector).map_err(|_| {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("Invalid CSS selector: {:?}", config.selector),
+        )
+    })?;
+
+    matches
         .inspect(|noderef| {
             let Ok(remove) = noderef.as_node().select_first(&remove_node_selector) else {
                 return;
@@ -122,7 +127,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
         .map(|node| {
             if let Some(base) = &base {
-                link::rewrite_relative_url(node.as_node(), &base)
+                link::rewrite_relative_url(node.as_node(), base);
             }
             node
         })
